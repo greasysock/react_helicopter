@@ -1,9 +1,9 @@
 import React, {useState, useEffect, useRef} from 'react'
 import Styled from 'styled-components'
 
-const viewHeight = 100
-const accelHi = 1.3
-const accelLo = -1.8
+const viewHeight = 15
+const accelHi = 6.3
+const accelLo = -9.8
 
 const Helicopter = ({mouseState, gameState}) => {
     const [currentHeight, setCurrentHeight] = useState(viewHeight/2)
@@ -33,14 +33,14 @@ const Helicopter = ({mouseState, gameState}) => {
         }
 
         if(accelerationRef.current < accelerationTarRef.current){
-            accelerationRef.current = accelerationRef.current + .01
+            accelerationRef.current = accelerationRef.current + .1
             if(accelerationRef.current > accelerationTarRef.current){accelerationRef.current = accelerationTarRef.current}
             requestAnimationFrame(animateAcceleration)
 
             return
         }
         if(accelerationRef.current > accelerationTarRef.current){
-            accelerationRef.current = accelerationRef.current - .01
+            accelerationRef.current = accelerationRef.current - .1
             if(accelerationRef.current < accelerationTarRef.current){accelerationRef.current = accelerationTarRef.current}
             requestAnimationFrame(animateAcceleration)
 
@@ -49,20 +49,23 @@ const Helicopter = ({mouseState, gameState}) => {
     }
 
     const animate = (time) => {
-        const realTime = (timeRef.current - time)/1000
+        const realTime = (time-timeRef.current)/1000
         velocityRef.current = velocityRef.current + realTime*accelerationRef.current
-        const height = velocityRef.current*realTime + (accelerationRef.current*(realTime^2))/2
+        const height = velocityRef.current*realTime + (accelerationRef.current*(realTime.toExponential(2)))/2
+
+
+        //console.log((accelerationRef.current*(realTime.toExponential(2)))/2)
         setCurrentHeight((h)=> height+h)
 
         requestAnimationFrame(animate)
         timeRef.current = time
     }
 
-    //console.log(`H:${currentHeight.toFixed(2)} V:${velocityRef.current.toFixed(2)} A:${accelerationRef.current.toFixed(2)}`)
+    //console.log(`T: ${timeRef.current.toPrecision(3)} H:${currentHeight.toFixed(2)} V:${velocityRef.current.toFixed(2)} A:${accelerationRef.current.toFixed(2)}`)
 
     const Body = Styled.div({
-        width: 100,
-        height: 50,
+        width: window.innerHeight/6,
+        height: window.innerHeight/12,
         backgroundColor: 'white',
         position: 'fixed',
         bottom: (currentHeight/viewHeight)*window.innerHeight,
