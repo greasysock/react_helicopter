@@ -9,7 +9,7 @@ const App = (props) => {
   const [gameState, setGameState] = useState(false)
 
   return (
-    <Background onKeyPress={(event)=>{console.log(event.keyCode)}} onMouseDown={()=>{setMouseState(true);setGameState(true)}} onMouseUp={()=>setMouseState(false)}>
+    <Background onTouchStart={()=>{setMouseState(true);setGameState(true)}} onTouchEnd={()=>{setMouseState(false)}} onKeyPress={(event)=>{console.log(event.keyCode)}} onMouseDown={()=>{setMouseState(true);setGameState(true)}} onMouseUp={()=>setMouseState(false)}>
       <Boundary>
         <Helicopter mouseState={mouseState} gameState={gameState}/>
         <ObstacleField gameState={gameState}/>
