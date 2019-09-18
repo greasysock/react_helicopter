@@ -1,15 +1,13 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react'
+import React, {useEffect, useRef, useCallback, useContext} from 'react'
 import useAnimationFrame from '../hooks/useAnimationFrame'
+import PlayerHeightContext from '../contexts/PlayerHeightContext'
+import GameStateContext from '../contexts/GameStateContext'
+import GameConstantsContext from '../contexts/GameConstantsContext'
 
-const viewHeight = 15
-const accelHi = 6.3
-const accelLo = -9.8
-const helicopterWidth = window.innerHeight/6
-const helicopterHeight = window.innerHeight/12
-const helicopterLeft = window.innerWidth/5
-
-const Helicopter = ({mouseState, gameState}) => {
-    const [currentHeight, setCurrentHeight] = useState(viewHeight/2)
+const Helicopter = () => {
+    const {playerHeight, setPlayerHeight, resetHeight} = useContext(PlayerHeightContext)
+    const {gameState, touchState} = useContext(GameStateContext)
+    const {helicopter} = useContext(GameConstantsContext)
 
     const accelerationRef = useRef(0)
     const accelerationTarRef = useRef(0)
@@ -19,13 +17,13 @@ const Helicopter = ({mouseState, gameState}) => {
     const animate = useCallback((deltaTime) => {
         const realTime = (deltaTime)/1000
         velocityRef.current = velocityRef.current + realTime*accelerationRef.current
-        const height = velocityRef.current*realTime + (accelerationRef.current*(realTime.toExponential(2)))/2
-        setCurrentHeight((h)=> height+h)
-    }, [])
+        const height = (velocityRef.current*realTime + (accelerationRef.current*(realTime.toExponential(2)))/2) * helicopter.viewHeight
+        setPlayerHeight((h)=> height+h)
+    }, [setPlayerHeight, helicopter.viewHeight])
 
     const animateAcceleration = useCallback((deltaTime) =>{
         const direction = Math.abs(accelerationRef.current) / accelerationRef.current
-        rotRef.current = Math.abs(accelerationRef.current/accelerationTarRef.current) * 20 * direction * -1
+        rotRef.current = Math.abs(accelerationRef.current/accelerationTarRef.current) * 12 * direction * -1
         if(accelerationRef.current===accelerationTarRef.current){
             return
         }
@@ -47,22 +45,28 @@ const Helicopter = ({mouseState, gameState}) => {
 
     useEffect(()=>{
         if(gameState){
-            mouseState ? accelerationTarRef.current = accelHi : accelerationTarRef.current = accelLo
+            touchState ? accelerationTarRef.current = helicopter.accelerationHigh : accelerationTarRef.current = helicopter.accelerationLow
+        }else{
+            resetHeight()
+            accelerationRef.current = 0
+            accelerationTarRef.current = 0
+            velocityRef.current = 0
+            rotRef.current = 0
         }
-    }, [mouseState, animateAcceleration, gameState])
+    }, [touchState, animateAcceleration, gameState, helicopter.accelerationLow, helicopter.accelerationHigh, resetHeight])
     
-    const bottom = (currentHeight/viewHeight)*window.innerHeight
+    const bottom = (playerHeight)
     const transform = `rotate(${rotRef.current}deg)`
 
     return (
         <div
             style={{
-                width: helicopterWidth,
-                height: helicopterHeight,
+                width: helicopter.width,
+                height: helicopter.height,
                 backgroundColor: 'white',
                 position: 'fixed',
                 bottom,
-                left: helicopterLeft,
+                left: helicopter.left,
                 transform
             }}
         />

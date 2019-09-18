@@ -1,20 +1,27 @@
-import React, {useState} from 'react'
+import React from 'react'
+
 import Background from './Background'
 import Helicopter from './Helicopter'
 import Boundary from './Boundary'
 import ObstacleField from './ObstacleField'
+import Score from './Score'
+
+import {PlayerHeightProvider} from '../contexts/PlayerHeightContext'
+import {GameStateProvider} from '../contexts/GameStateContext'
 
 const App = (props) => {
-  const [mouseState, setMouseState] = useState(false)
-  const [gameState, setGameState] = useState(false)
-
   return (
-    <Background onTouchStart={()=>{setMouseState(true);setGameState(true)}} onTouchEnd={()=>{setMouseState(false)}} onKeyPress={(event)=>{console.log(event.keyCode)}} onMouseDown={()=>{setMouseState(true);setGameState(true)}} onMouseUp={()=>setMouseState(false)}>
+    <GameStateProvider>
+    <PlayerHeightProvider>
+    <Background>
       <Boundary>
-        <Helicopter mouseState={mouseState} gameState={gameState}/>
-        <ObstacleField gameState={gameState}/>
+        <Helicopter/>
+        <ObstacleField/>
       </Boundary>
+      <Score/>
     </Background>
+    </PlayerHeightProvider>
+    </GameStateProvider>
   )
 }
 

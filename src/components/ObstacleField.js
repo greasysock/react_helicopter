@@ -1,20 +1,29 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react'
+import React, {useState, useEffect, useRef, useCallback, useContext} from 'react'
 import useAnimationFrame from '../hooks/useAnimationFrame'
+import PlayerHeightContext from '../contexts/PlayerHeightContext'
+import GameStateContext from '../contexts/GameStateContext'
+import GameConstantsContext from '../contexts/GameConstantsContext'
 
 const getRandomHeight = () => {
     return window.innerHeight/(Math.random()*5+1)
 }
 
-const blockWidth = window.innerHeight/10
-const blockHeight = window.innerHeight/3.5
-
 const Obstacle = ({spawnCallback, destroyCallback, childKey}) => {
     const [right, setRight] = useState(-200)
-    const [top] = useState(getRandomHeight())
-    const spawnRef = useRef(false)    
+    const [top] = useState(getRandomHeight()) 
+    const spawnRef = useRef(false)
+    const {obstacle, global, helicopter} = useContext(GameConstantsContext)
+    const {collision} = useContext(GameStateContext)
+    const {playerHeight} = useContext(PlayerHeightContext)
 
+    if((top <= playerHeight) && (top+obstacle.height >= playerHeight)){
+        if((right >= helicopter.right-helicopter.width-obstacle.width)&&(right<=helicopter.right+obstacle.width)) {
+            collision()
+        }
+    }
+    
     const animate = (deltaTime) => {
-        const frameTime = deltaTime / 3
+        const frameTime = deltaTime * global.speed
         setRight((r)=> r+frameTime)
     }
     useAnimationFrame(animate)
@@ -28,21 +37,23 @@ const Obstacle = ({spawnCallback, destroyCallback, childKey}) => {
     }
 
     return (
+        <>
         <div style={{
-            width: blockWidth,
-            height: blockHeight,
+            width: obstacle.width,
+            height: obstacle.height,
             position: 'fixed',
             right,
-            top,
+            bottom:top,
             background: 'white'
         }}/>
+        </>
     )
 }
 
-const ObstacleField = ({gameState}) => {
+const ObstacleField = () => {
     const [gameObstacles, setGameObstacles] = useState([])
     const objectsRef = useRef(0)
-
+    const {gameState} = useContext(GameStateContext)
     const spawnCallback = useCallback(() => {
         setGameObstacles((obstacles)=>{
             objectsRef.current++
