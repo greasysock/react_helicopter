@@ -12,7 +12,12 @@ const BackgroundBlock = Styled.div({
 const Background = (props) => {
     const {touchDown, touchUp} = useContext(GameStateContext)
     return (
-        <BackgroundBlock onMouseDown={touchDown} onMouseUp={touchUp}>
+        <BackgroundBlock 
+            onMouseDown={touchDown} 
+            onMouseUp={touchUp}
+            onTouchStart={touchDown}
+            onTouchEnd={touchUp}
+            >
             {props.children}
         </BackgroundBlock>
     )

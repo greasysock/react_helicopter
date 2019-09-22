@@ -11,7 +11,8 @@ const ScoreBox = Styled.div({
     right,
     bottom,
     color: 'black',
-    fontSize: `${window.innerHeight/26}px`
+    fontSize: `${window.innerHeight/26}px`,
+    userSelect: 'none'
 })
 
 const Score = () => {
